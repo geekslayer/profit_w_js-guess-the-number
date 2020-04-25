@@ -32,6 +32,13 @@ let messageType = {
 }
 
 // Variable to store the list of guesses 
+// this array contains objects
+// { 
+//    Number: ...,
+//    State: ...
+// }
+// 
+// 
 let guesses = [];
 
 // Variable for store the correct random number 
@@ -64,8 +71,7 @@ function playGame(){
 }
 
 // Initialize a new game by resetting all values and content on the page
-function initGame(){
-  correctNumber = getRandomNumber();
+function initGame() {
   guesses = [];
   displayHistory();
   resetResultContent();
@@ -76,6 +82,7 @@ function resetResultContent(){
   $("#result").html('');
   $("#number-guess").val('');
   $("#number-guess").focus();
+  correctNumber = getRandomNumber();
 }
 
 // Return random number between 1 and 100
@@ -98,7 +105,7 @@ function displayHistory() {
   
   guesses.forEach((guess) => {
     list += historyMessageTemplate
-                    .replace(historyReplacePattern, guess.Guess)
+                    .replace(historyReplacePattern, guess.Number)
                     .replace(historyStateReplacePattern, guess.State);
   });
 
@@ -109,7 +116,7 @@ function displayHistory() {
 
 // Display the result in HTML
 function displayResult(numberGuess) {
-  let newGuess = { Guess: numberGuess, State: '' };
+  let newGuess = { Number: numberGuess, State: '' };
 
   if(numberGuess > correctNumber) {
     newGuess.State = messages.Over;
