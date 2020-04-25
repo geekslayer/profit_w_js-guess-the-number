@@ -11,8 +11,9 @@
 // Templates for messages
 let unorderedListTemplateStartTag = "<ul class='list-group'>";
 let unorderedListTemplateEndTag = "</ul>";
-let historyMessageTemplate = "<li class='list-group-item'>You guessed INSERT_NUMBER_HERE</li>";
+let historyMessageTemplate = "<li class='list-group-item'>You guessed INSERT_NUMBER_HERE - INSERT_STATE_HERE</li>";
 let historyReplacePattern = 'INSERT_NUMBER_HERE';
+let historyStateReplacePattern = 'INSERT_STATE_HERE';
 
 let userGuessMessageTemplate = "<div class='alert alert-INSERT_STATUS_HERE' role='alert'>INSERT_MESSAGE_HERE</div>";
 let userGuessStatusReplacePattern = 'INSERT_STATUS_HERE';
@@ -58,8 +59,7 @@ window.onload = function() {
 
 function playGame(){
   let numberGuess = $("#number-guess").val();
-  saveGuessHistory(numberGuess);
-  displayHistory();
+  
   displayResult(numberGuess);
 }
 
@@ -75,6 +75,7 @@ function initGame(){
 function resetResultContent(){
   $("#result").html('');
   $("#number-guess").val('');
+  $("#number-guess").focus();
 }
 
 // Return random number between 1 and 100
@@ -96,7 +97,9 @@ function displayHistory() {
   let list = unorderedListTemplateStartTag;
   
   guesses.forEach((guess) => {
-    list += historyMessageTemplate.replace(historyReplacePattern, guess);
+    list += historyMessageTemplate
+                    .replace(historyReplacePattern, guess.Guess)
+                    .replace(historyStateReplacePattern, guess.State);
   });
 
   list += unorderedListTemplateEndTag;
@@ -105,25 +108,33 @@ function displayHistory() {
 }
 
 // Display the result in HTML
-function displayResult(numberGuess){
+function displayResult(numberGuess) {
+  let newGuess = { Guess: numberGuess, State: '' };
+
   if(numberGuess > correctNumber) {
-    showWarningMessage(messages.Over);
-  } else if (numberGuess < correctNumber){
-    showWarningMessage(messages.Below);
+    newGuess.State = messages.Over;
+    showWarningMessage(newGuess);
+  } else if (numberGuess < correctNumber) {
+    newGuess.State = messages.Below;
+    showWarningMessage(newGuess);
   } else {
-    showYouWon();
+    newGuess.State = messages.Won;
+    showYouWon(newGuess);
   }
+
+  saveGuessHistory(newGuess);
+  displayHistory();
 }
 
 // Retrieve the dialog based on if the guess is wrong or correct 
 function getDialog(dialogType, text){
     return userGuessMessageTemplate
                   .replace(userGuessStatusReplacePattern,dialogType)
-                  .replace(userGuessMessageReplacePattern,text);
+                  .replace(userGuessMessageReplacePattern,text.State);
 }
 
-function showYouWon(){
-    $("#result").html(getDialog(messageType.Won, messages.Won));
+function showYouWon(message){
+    $("#result").html(getDialog(messageType.Won, message));
 }
 
 function showWarningMessage(message){
